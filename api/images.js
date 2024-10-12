@@ -33,3 +33,4 @@ app.get('/api/images', (req, res) => {
 });
 
 // Vercel will handle port binding automatically, no need for app.listen()
+module.exports = app;
