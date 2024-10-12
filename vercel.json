@@ -1,17 +1,16 @@
 {
-    "builds": [
-      {
-        "src": "server/index.js",   // Your Node.js backend
-        "use": "@vercel/node"       // Specifies Node.js runtime for the server
-      },
-      {
-        "src": "src/**/*",          // Your React app files
-        "use": "@vercel/static-build"
-      }
-    ],
-    "routes": [
-      { "src": "/images", "dest": "/api/images" },  // Route /images to backend API
-      { "src": "/(.*)", "dest": "/index.html" }     // All other routes go to frontend
-    ]
-  }
-  
+  "builds": [
+    {
+      "src": "api/images.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "src/**/*",
+      "use": "@vercel/static-build"
+    }
+  ],
+  "routes": [
+    { "src": "/api/images", "dest": "/api/images.js" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
