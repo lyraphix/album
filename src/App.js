@@ -5,7 +5,7 @@ import './App.css';
 function App() {
   return (
     <div className="App">
-      <h1>My Photo Gallery</h1>
+      <h1>album: scans</h1>
       {/* Remove hardcoded images and fetch from backend */}
       <ImageGrid />
     </div>
