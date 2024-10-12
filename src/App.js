@@ -1,23 +1,20 @@
-import logo from './logo.svg';
+import React from 'react';
+import ImageGrid from './components/ImageGrid';
 import './App.css';
 
 function App() {
+  // Placeholder for now, we will later fetch images dynamically from S3
+  const images = [
+    '/images/photo1.jpg',
+    '/images/photo2.jpg',
+    '/images/photo3.jpg',
+    // Add paths to local images
+  ];
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>My Photo Gallery</h1>
+      <ImageGrid images={images} />
     </div>
   );
 }
