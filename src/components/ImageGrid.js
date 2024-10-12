@@ -7,7 +7,7 @@ const ImageGrid = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/images')  // Explicitly point to the backend port
+    fetch('https://album-six-delta.vercel.app/images')  // Fetch from the live backend
       .then(response => response.json())
       .then(data => setImages(data))
       .catch(error => console.error('Error fetching images:', error));

@@ -1,20 +1,21 @@
 const express = require('express');
 const AWS = require('aws-sdk');
+const cors = require('cors');  // Import CORS
 const app = express();
 require('dotenv').config();  // Load environment variables
 
-const port = process.env.PORT || 3001;
+// Enable CORS for all routes
+app.use(cors());
 
-// Configure AWS SDK
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: 'us-east-1',  // Your S3 bucket region
+  region: 'us-east-1',
 });
 
 app.get('/images', (req, res) => {
   const params = {
-    Bucket: process.env.AWS_BUCKET_NAME,  // Your S3 bucket name from .env
+    Bucket: process.env.AWS_BUCKET_NAME,
   };
 
   s3.listObjectsV2(params, (err, data) => {
@@ -24,12 +25,10 @@ app.get('/images', (req, res) => {
     }
 
     // Map each object to its S3 URL
-    const imageUrls = data.Contents.map(item => {
-        return `https://${params.Bucket}.s3.amazonaws.com/${item.Key}`;
-    });
-      
+    const imageUrls = data.Contents.map(item => `https://${params.Bucket}.s3.amazonaws.com/${item.Key}`);
 
     res.json(imageUrls);
   });
 });
 
+// Vercel will handle port binding automatically, no need for app.listen()
