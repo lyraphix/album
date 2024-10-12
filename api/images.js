@@ -14,7 +14,7 @@ const s3 = new AWS.S3({
   });
   
 
-app.get('/images', (req, res) => {
+app.get('/api/images', (req, res) => {
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
   };
