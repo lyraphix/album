@@ -8,10 +8,11 @@ require('dotenv').config();  // Load environment variables
 app.use(cors());
 
 const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: 'us-east-1',
-});
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: 'us-east-2',  // Make sure to set the correct region here
+  });
+  
 
 app.get('/images', (req, res) => {
   const params = {
