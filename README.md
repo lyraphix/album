@@ -1,70 +1,39 @@
-# Getting Started with Create React App
+# Features I'd like:
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## aesthetics 
+  - deliver nicer aesthetic and at least 2 albums fast so that I can use it to show silk guys
+    
+## albums!
+  - album name in top left
+  - need an album create page. main page can just be my default album (everything).
+    - album create page: album name and album password.
+  - STRETCH GOAL: remix albums. so create albums of other peoples shit. like a select toggle button near top right. 
+  - main page allows you to type in your album name. once there you can upload to it.
+    - there needs to be a way so that only you can upload to an album. or everyone can upload to it.
+    - password protecting albums would also be interesting. not only for privacy but also for uploading.
+      
+## image conversions
+  - should all be jpg, 1 hi-res, 1 low-res.
+  - need to validate uploads (should exclusively be images)
+  - need to make it so people who upload bad content are banned beeg-time.
 
-## Available Scripts
+## uploads!!
+  - upload button should be in top right or something.
+  - uploading needs to be conducive to many uploads. and progress bar instead of error. and image by image. so people can understand how their upload is coming along
+    
 
-In the project directory, you can run:
+# productionize! (get ready to put qr codes around ny)
+## marketing
+  - flyers for this would go hard literally just a screenshot of the main page
+  - i want a Bunch of people to upload just an insane amount of images
 
-### `npm start`
+## security
+  - big security shit. like i need to ENSURE people abusing uploads (spam/high volume/inappropriate content) are truly bannable.
+  - i like phone number sms verification. tie every upload to a number. this combined with ip would be good. make a map of every ip/phone-number combo. if a phone number gets banned every ip tied to it gets banned.
+  - add some observability.
+  - aws rekognition is a solution apparently!
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## cost
+  - price out 20 users, 200 users
+  - look into webp/alternative cheapo hosting.
+  - add limits to protect for cost.
