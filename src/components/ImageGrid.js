@@ -6,11 +6,13 @@ const ImageGrid = () => {
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // Inside your useEffect that fetches images
   useEffect(() => {
     fetch('/api/images')
       .then((res) => res.json())
-      .then((data) => setImages(data))
+      .then((data) => {
+        console.log('Fetched images:', data);
+        setImages(data);
+      })
       .catch((error) => console.error('Error fetching images:', error));
   }, []);
 

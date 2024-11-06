@@ -11,15 +11,16 @@ module.exports = async (req, res) => {
 
   const params = {
     Bucket: bucketName,
-    Prefix: 'images/', // Adjust if needed
+    Prefix: '', // Changed from 'images/' to ''
   };
 
   try {
     const data = await s3.listObjectsV2(params).promise();
+    console.log('S3 Data:', data);
 
     const images = data.Contents.filter((item) => !item.Key.endsWith('/'))
       .map((item) => {
-        const imageName = item.Key.replace('images/', '');
+        const imageName = item.Key.split('/').pop(); // Extract the filename
         return {
           key: imageName,
           url: `https://${bucketName}.s3.amazonaws.com/${item.Key}`,
@@ -27,17 +28,17 @@ module.exports = async (req, res) => {
         };
       });
 
-    // Group images by name
+    // Group images by filename
     const imageMap = {};
     images.forEach((img) => {
-      const name = img.key.replace('low-res/', '');
-      if (!imageMap[name]) {
-        imageMap[name] = {};
+      const imageName = img.key;
+      if (!imageMap[imageName]) {
+        imageMap[imageName] = {};
       }
       if (img.isLowRes) {
-        imageMap[name].lowRes = img.url;
+        imageMap[imageName].lowRes = img.url;
       } else {
-        imageMap[name].highRes = img.url;
+        imageMap[imageName].highRes = img.url;
       }
     });
 
