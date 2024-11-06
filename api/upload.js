@@ -1,7 +1,7 @@
 const formidable = require('formidable');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
-const fs = require('fs'); // Added fs module
+const fs = require('fs');
 
 module.exports = (req, res) => {
   if (req.method === 'POST') {
@@ -14,17 +14,19 @@ module.exports = (req, res) => {
         return;
       }
 
-      const file = files.image;
+      let uploadedFiles = files.image;
 
-      if (!file) {
-        res.status(400).send('No file uploaded');
+      if (!uploadedFiles) {
+        res.status(400).send('No files uploaded');
         return;
       }
 
-      try {
-        // Read the file from the temporary location
-        const fileData = fs.readFileSync(file.path);
+      // Ensure uploadedFiles is an array
+      if (!Array.isArray(uploadedFiles)) {
+        uploadedFiles = [uploadedFiles];
+      }
 
+      try {
         // Initialize AWS S3 client
         const s3 = new AWS.S3({
           accessKeyId: process.env.AWS_ACCESS_KEY_ID, // from Vercel
@@ -32,39 +34,46 @@ module.exports = (req, res) => {
           region: process.env.AWS_REGION, // from Vercel
         });
 
-        // Generate a low-resolution version
-        const lowResImage = await sharp(fileData)
-          .resize({ width: 200 })
-          .toBuffer();
-
-        // Define S3 upload parameters
         const bucketName = process.env.AWS_BUCKET_NAME; // from Vercel
-        const fileName = file.name; // Original file name
 
-        // Upload original image
-        await s3
-          .upload({
-            Bucket: bucketName,
-            Key: `images/${fileName}`,
-            Body: fileData,
-            ACL: 'public-read',
-          })
-          .promise();
+        for (const file of uploadedFiles) {
+          // Read the file from the temporary location
+          const fileData = fs.readFileSync(file.path);
 
-        // Upload low-res image
-        await s3
-          .upload({
-            Bucket: bucketName,
-            Key: `images/low-res/${fileName}`,
-            Body: lowResImage,
-            ACL: 'public-read',
-          })
-          .promise();
+          // Generate a low-resolution version
+          const lowResImage = await sharp(fileData)
+            .resize({ width: 200 })
+            .toBuffer();
 
-        res.status(200).send('Image uploaded and processed successfully');
+          const fileName = file.name; // Original file name
+
+          // Upload original image to root of bucket
+          await s3
+            .upload({
+              Bucket: bucketName,
+              Key: `${fileName}`, // Stored at root
+              Body: fileData,
+              ACL: 'public-read',
+            })
+            .promise();
+
+          // Upload low-res image to 'low-res/' directory
+          await s3
+            .upload({
+              Bucket: bucketName,
+              Key: `low-res/${fileName}`,
+              Body: lowResImage,
+              ACL: 'public-read',
+            })
+            .promise();
+
+          console.log(`Processed and uploaded ${fileName}`);
+        }
+
+        res.status(200).send('Images uploaded and processed successfully');
       } catch (error) {
-        console.error('Error processing the image:', error);
-        res.status(500).send('Error processing the image');
+        console.error('Error processing the images:', error);
+        res.status(500).send('Error processing the images');
       }
     });
   } else {
