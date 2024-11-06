@@ -1,36 +1,51 @@
-const express = require('express');
 const AWS = require('aws-sdk');
-const cors = require('cors');  // Import CORS
-const app = express();
-require('dotenv').config();  // Load environment variables
 
-// Enable CORS for all routes
-app.use(cors());
-
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: 'us-east-2',  // Make sure to set the correct region here
+module.exports = async (req, res) => {
+  const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID, // from Vercel
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // from Vercel
+    region: process.env.AWS_REGION, // from Vercel
   });
-  
 
-app.get('/api/images', (req, res) => {
+  const bucketName = process.env.AWS_BUCKET_NAME; // from Vercel
+
   const params = {
-    Bucket: process.env.AWS_BUCKET_NAME,
+    Bucket: bucketName,
+    Prefix: 'images/', // Adjust if needed
   };
 
-  s3.listObjectsV2(params, (err, data) => {
-    if (err) {
-      console.error('Error fetching images:', err);
-      return res.status(500).json({ error: 'Error fetching images' });
-    }
+  try {
+    const data = await s3.listObjectsV2(params).promise();
 
-    // Map each object to its S3 URL
-    const imageUrls = data.Contents.map(item => `https://${params.Bucket}.s3.amazonaws.com/${item.Key}`);
+    const images = data.Contents.filter((item) => !item.Key.endsWith('/'))
+      .map((item) => {
+        const imageName = item.Key.replace('images/', '');
+        return {
+          key: imageName,
+          url: `https://${bucketName}.s3.amazonaws.com/${item.Key}`,
+          isLowRes: item.Key.includes('low-res/'),
+        };
+      });
 
-    res.json(imageUrls);
-  });
-});
+    // Group images by name
+    const imageMap = {};
+    images.forEach((img) => {
+      const name = img.key.replace('low-res/', '');
+      if (!imageMap[name]) {
+        imageMap[name] = {};
+      }
+      if (img.isLowRes) {
+        imageMap[name].lowRes = img.url;
+      } else {
+        imageMap[name].highRes = img.url;
+      }
+    });
 
-// Vercel will handle port binding automatically, no need for app.listen()
-module.exports = app;
+    const imageArray = Object.values(imageMap);
+
+    res.status(200).json(imageArray);
+  } catch (error) {
+    console.error('Error listing images:', error);
+    res.status(500).send('Error listing images');
+  }
+};
