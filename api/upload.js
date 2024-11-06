@@ -38,14 +38,14 @@ module.exports = (req, res) => {
 
         for (const file of uploadedFiles) {
           // Read the file from the temporary location
-          const fileData = fs.readFileSync(file.path);
+          const fileData = fs.readFileSync(file.filepath); // Updated here
 
           // Generate a low-resolution version
           const lowResImage = await sharp(fileData)
             .resize({ width: 200 })
             .toBuffer();
 
-          const fileName = file.name; // Original file name
+          const fileName = file.originalFilename; // Use originalFilename instead of name
 
           // Upload original image to root of bucket
           await s3
