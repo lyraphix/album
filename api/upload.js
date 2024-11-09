@@ -1,5 +1,3 @@
-// api/upload.js
-
 const formidable = require('formidable');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
@@ -7,7 +5,7 @@ const fs = require('fs');
 
 module.exports = (req, res) => {
   if (req.method === 'POST') {
-    const form = new formidable.IncomingForm();
+    const form = new formidable.IncomingForm({ multiples: true });
 
     form.parse(req, async (err, fields, files) => {
       if (err) {
@@ -31,6 +29,7 @@ module.exports = (req, res) => {
         return;
       }
 
+      // Ensure uploadedFiles is an array
       if (!Array.isArray(uploadedFiles)) {
         uploadedFiles = [uploadedFiles];
       }
@@ -55,7 +54,7 @@ module.exports = (req, res) => {
           // Define S3 paths
           const highResKey = `users/${username}/${albumname}/hi-res/${fileName}`;
           const lowResKey = `users/${username}/${albumname}/low-res/${fileName}`;
-          
+
           // Upload high-res image
           await s3
             .upload({
