@@ -1,0 +1,32 @@
+/* src/components/ProgressCircle.css */
+
+.progress-circle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .progress-circle {
+    position: relative;
+    width: 100px;
+    height: 100px;
+  }
+  
+  .progress-circle-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+  
+  .progress-circle-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+  }
+  

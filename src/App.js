@@ -10,7 +10,6 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <h1>Photo Gallery</h1>
         <Routes>
           <Route path="/" element={<ImageUpload />} />
           <Route path="/u/:username/:albumname" element={<ImageGrid />} />
