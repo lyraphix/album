@@ -1,3 +1,5 @@
+// api/images.js
+
 const AWS = require('aws-sdk');
 
 module.exports = async (req, res) => {
@@ -9,9 +11,16 @@ module.exports = async (req, res) => {
 
   const bucketName = process.env.AWS_BUCKET_NAME; // from Vercel
 
+  const { username, albumname } = req.query;
+
+  if (!username || !albumname) {
+    res.status(400).json({ error: 'Username and album name are required.' });
+    return;
+  }
+
   const params = {
     Bucket: bucketName,
-    Prefix: '', // Changed from 'images/' to ''
+    Prefix: `users/${username}/albums/${albumname}/`,
   };
 
   try {
@@ -20,11 +29,14 @@ module.exports = async (req, res) => {
 
     const images = data.Contents.filter((item) => !item.Key.endsWith('/'))
       .map((item) => {
-        const imageName = item.Key.split('/').pop(); // Extract the filename
+        const keyParts = item.Key.split('/');
+        const imageName = keyParts[keyParts.length - 1]; // Get the filename
+        const resolution = keyParts[keyParts.length - 2]; // 'hires' or 'lowres'
+
         return {
           key: imageName,
           url: `https://${bucketName}.s3.amazonaws.com/${item.Key}`,
-          isLowRes: item.Key.includes('low-res/'),
+          resolution: resolution,
         };
       });
 
@@ -35,11 +47,7 @@ module.exports = async (req, res) => {
       if (!imageMap[imageName]) {
         imageMap[imageName] = {};
       }
-      if (img.isLowRes) {
-        imageMap[imageName].lowRes = img.url;
-      } else {
-        imageMap[imageName].highRes = img.url;
-      }
+      imageMap[imageName][img.resolution] = img.url;
     });
 
     const imageArray = Object.values(imageMap);

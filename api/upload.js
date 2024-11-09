@@ -1,3 +1,5 @@
+// api/upload.js
+
 const formidable = require('formidable');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
@@ -9,8 +11,16 @@ module.exports = (req, res) => {
 
     form.parse(req, async (err, fields, files) => {
       if (err) {
-        console.error('Error parsing the files');
+        console.error('Error parsing the files:', err);
         res.status(500).send('Internal server error');
+        return;
+      }
+
+      const username = fields.username.trim();
+      const albumname = fields.albumname.trim();
+
+      if (!username || !albumname) {
+        res.status(400).send('Username and album name are required.');
         return;
       }
 
@@ -21,53 +31,52 @@ module.exports = (req, res) => {
         return;
       }
 
-      // Ensure uploadedFiles is an array
       if (!Array.isArray(uploadedFiles)) {
         uploadedFiles = [uploadedFiles];
       }
 
       try {
-        // Initialize AWS S3 client
         const s3 = new AWS.S3({
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID, // from Vercel
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // from Vercel
-          region: process.env.AWS_REGION, // from Vercel
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+          region: process.env.AWS_REGION,
         });
 
-        const bucketName = process.env.AWS_BUCKET_NAME; // from Vercel
+        const bucketName = process.env.AWS_BUCKET_NAME;
 
         for (const file of uploadedFiles) {
-          // Read the file from the temporary location
-          const fileData = fs.readFileSync(file.filepath); // Updated here
-
-          // Generate a low-resolution version
+          const fileData = fs.readFileSync(file.filepath);
           const lowResImage = await sharp(fileData)
             .resize({ width: 200 })
             .toBuffer();
 
-          const fileName = file.originalFilename; // Use originalFilename instead of name
+          const fileName = file.originalFilename;
 
-          // Upload original image to root of bucket
+          // Define S3 paths
+          const highResKey = `users/${username}/albums/${albumname}/hires/${fileName}`;
+          const lowResKey = `users/${username}/albums/${albumname}/lowres/${fileName}`;
+
+          // Upload high-res image
           await s3
             .upload({
               Bucket: bucketName,
-              Key: `${fileName}`, // Stored at root
+              Key: highResKey,
               Body: fileData,
               ACL: 'public-read',
             })
             .promise();
 
-          // Upload low-res image to 'low-res/' directory
+          // Upload low-res image
           await s3
             .upload({
               Bucket: bucketName,
-              Key: `low-res/${fileName}`,
+              Key: lowResKey,
               Body: lowResImage,
               ACL: 'public-read',
             })
             .promise();
 
-          console.log(`Processed and uploaded ${fileName}`);
+          console.log(`Processed and uploaded ${fileName} for user ${username} in album ${albumname}`);
         }
 
         res.status(200).send('Images uploaded and processed successfully');

@@ -1,24 +1,22 @@
-import React, { useState, useEffect } from 'react';
+// src/App.js
+
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ImageUpload from './components/ImageUpload';
 import ImageGrid from './components/ImageGrid';
 import './App.css';
 
 function App() {
-  const [images, setImages] = useState([]);
-
-  useEffect(() => {
-    fetch('/api/images')
-      .then((res) => res.json())
-      .then((data) => setImages(data))
-      .catch((error) => console.error('Error fetching images:', error));
-  }, []);
-
   return (
-    <div className="App">
-      <h1>album: scans</h1>
-      <ImageUpload setImages={setImages} />
-      <ImageGrid images={images} />
-    </div>
+    <Router>
+      <div className="App">
+        <h1>Photo Gallery</h1>
+        <Routes>
+          <Route path="/" element={<ImageUpload />} />
+          <Route path="/u/:username/:albumname" element={<ImageGrid />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
