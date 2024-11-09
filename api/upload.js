@@ -53,9 +53,9 @@ module.exports = (req, res) => {
           const fileName = file.originalFilename;
 
           // Define S3 paths
-          const highResKey = `users/${username}/albums/${albumname}/hires/${fileName}`;
-          const lowResKey = `users/${username}/albums/${albumname}/lowres/${fileName}`;
-
+          const highResKey = `users/${username}/${albumname}/hi-res/${fileName}`;
+          const lowResKey = `users/${username}/${albumname}/low-res/${fileName}`;
+          
           // Upload high-res image
           await s3
             .upload({

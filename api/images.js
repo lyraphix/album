@@ -20,25 +20,28 @@ module.exports = async (req, res) => {
 
   const params = {
     Bucket: bucketName,
-    Prefix: `users/${username}/albums/${albumname}/`,
+    Prefix: `users/${username}/${albumname}/`,
   };
+  
 
   try {
     const data = await s3.listObjectsV2(params).promise();
     console.log('S3 Data:', data);
 
     const images = data.Contents.filter((item) => !item.Key.endsWith('/'))
-      .map((item) => {
-        const keyParts = item.Key.split('/');
-        const imageName = keyParts[keyParts.length - 1]; // Get the filename
-        const resolution = keyParts[keyParts.length - 2]; // 'hires' or 'lowres'
-
-        return {
-          key: imageName,
-          url: `https://${bucketName}.s3.amazonaws.com/${item.Key}`,
-          resolution: resolution,
-        };
-      });
+    .map((item) => {
+      const keyParts = item.Key.split('/');
+      const imageName = keyParts[keyParts.length - 1]; // Get the filename
+      const resolutionFolder = keyParts[keyParts.length - 2]; // 'hi-res' or 'low-res'
+      const resolution = resolutionFolder.replace('-', ''); // Convert 'hi-res' to 'hires', 'low-res' to 'lowres'
+  
+      return {
+        key: imageName,
+        url: `https://${bucketName}.s3.amazonaws.com/${item.Key}`,
+        resolution: resolution,
+      };
+    });
+  
 
     // Group images by filename
     const imageMap = {};
