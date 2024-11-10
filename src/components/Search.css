@@ -1,0 +1,25 @@
+/* src/components/Search.css */
+
+.search-container {
+    margin: 20px;
+    text-align: center;
+  }
+  
+  .search-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .search-container input {
+    padding: 10px;
+    margin: 5px 0;
+    width: 200px;
+  }
+  
+  .search-container button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  

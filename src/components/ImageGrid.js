@@ -31,8 +31,8 @@ const ImageGrid = () => {
   }, [username, albumname]);
 
   return (
-    <div>
-      <h2>{`${username}'s album: ${albumname}`}</h2>
+    <div className="image-grid-container">
+      <h2>{`${username}'s Album: ${albumname}`}</h2>
       <div className="grid">
         {images.map((image) => (
           <img
@@ -41,6 +41,7 @@ const ImageGrid = () => {
             alt={image.fileName}
             loading="lazy"
             onClick={() => setSelectedImage(image.hires)}
+            className="grid-image"
           />
         ))}
       </div>

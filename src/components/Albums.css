@@ -1,0 +1,31 @@
+/* src/components/Albums.css */
+
+.albums-container {
+    padding: 20px;
+  }
+  
+  .albums-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .album-card img {
+    width: 100%;
+    height: auto;
+    cursor: pointer;
+    border: 1px solid #ddd;
+  }
+  
+  .album-card img:hover {
+    border-color: #000;
+  }
+  
+  .album-name {
+    text-align: center;
+    font-size: 1em;
+    margin-top: 5px;
+    color: #333;
+  }
+  
