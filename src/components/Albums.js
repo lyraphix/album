@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import './Albums.css'; // For styling
+import './Albums.css';
 
 const Albums = () => {
   const { username } = useParams();
@@ -39,7 +39,7 @@ const Albums = () => {
 
   return (
     <div className="albums-container">
-      <h2>{username}'s Albums</h2>
+      <h2>albums: {username}</h2>
       <div className="albums-grid">
         {albums.map((album) => (
           <Link

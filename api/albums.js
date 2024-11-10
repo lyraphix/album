@@ -1,17 +1,15 @@
 // api/albums.js
 
 const AWS = require('aws-sdk');
-const path = require('path');
 
 module.exports = async (req, res) => {
   const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID, // Ensure these env variables are set in Vercel
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION,
   });
 
   const bucketName = process.env.AWS_BUCKET_NAME;
-
   const { username } = req.query;
 
   if (!username) {
@@ -27,7 +25,6 @@ module.exports = async (req, res) => {
     };
 
     const data = await s3.listObjectsV2(params).promise();
-
     const allKeys = data.Contents;
 
     // Extract unique album names
@@ -43,7 +40,7 @@ module.exports = async (req, res) => {
 
     const albumNames = Array.from(albumNamesSet);
 
-    // For each album, find the most recent image in hi-res
+    // For each album, find the most recent image in hi-res and get low-res URL
     const albums = await Promise.all(
       albumNames.map(async (albumName) => {
         const hiResParams = {
@@ -60,13 +57,15 @@ module.exports = async (req, res) => {
 
         // Sort hi-res images by LastModified descending
         hiResKeys.sort((a, b) => b.LastModified - a.LastModified);
+        const latestHiRes = hiResKeys[0];
 
-        const latestImage = hiResKeys[0];
-        const latestImageUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${latestImage.Key}`;
+        // Derive low-res image key
+        const lowResKey = latestHiRes.Key.replace('/hi-res/', '/low-res/');
+        const lowResUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${lowResKey}`;
 
         return {
           albumName,
-          latestImageUrl,
+          latestImageUrl: lowResUrl, // Use low-res for cover
         };
       })
     );

@@ -2,6 +2,7 @@
 
 .albums-container {
     padding: 20px;
+    text-align: center;
   }
   
   .albums-grid {
@@ -16,6 +17,8 @@
     height: auto;
     cursor: pointer;
     border: 1px solid #ddd;
+    /* Remove border-radius */
+    border-radius: 0;
   }
   
   .album-card img:hover {

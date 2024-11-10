@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Search.css'; // Optional: For styling
+import './Search.css';
 
 const Search = () => {
   const [username, setUsername] = useState('');
