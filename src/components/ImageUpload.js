@@ -83,7 +83,7 @@ const ImageUpload = () => {
     <div className="image-upload-container">
       {!uploading ? (
         <>
-          <h2>Create an Album</h2>
+          <h2>create an Album</h2>
           <form onSubmit={handleSubmit}>
             <input
               type="text"
@@ -110,8 +110,8 @@ const ImageUpload = () => {
         </>
       ) : (
         <div className="uploading-section">
-          <h2>Uploading Images</h2>
-          <p>Uploading: {currentImageName}</p>
+          <h2>uploading images</h2>
+          <p>uploading: {currentImageName}</p>
           <ProgressCircle current={currentImageIndex} total={totalImages} />
         </div>
       )}

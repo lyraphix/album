@@ -30,16 +30,16 @@ const Albums = () => {
   }, [username]);
 
   if (loading) {
-    return <p>Loading albums...</p>;
+    return <p>loading Albums...</p>;
   }
 
   if (albums.length === 0) {
-    return <p>No albums found for user "{username}".</p>;
+    return <p>no Albums found for user "{username}".</p>;
   }
 
   return (
     <div className="albums-container">
-      <h2>albums: {username}</h2>
+      <h2>Albums: {username}</h2>
       <div className="albums-grid">
         {albums.map((album) => (
           <Link

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Search.css';
+import './ImageUpload.css'; // Use the same CSS for consistent styling
 
 const Search = () => {
   const [username, setUsername] = useState('');
@@ -21,23 +21,25 @@ const Search = () => {
   };
 
   return (
-    <div className="search-container">
-      <h2>Search Albums</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="image-upload-container">
+      <h2>search Albums</h2>
+      <form onSubmit={handleSubmit} className="form-inline">
         <input
           type="text"
-          value={username}
+          name="username"
           placeholder="Username"
+          value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
         />
         <input
           type="text"
-          value={albumname}
+          name="albumname"
           placeholder="Album Name (Optional)"
+          value={albumname}
           onChange={(e) => setAlbumname(e.target.value)}
         />
-        <button type="submit">Search</button>
+        <button type="submit">search</button>
       </form>
     </div>
   );

@@ -18,7 +18,6 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // List all objects for the user
     const params = {
       Bucket: bucketName,
       Prefix: `users/${username}/`,
@@ -27,12 +26,11 @@ module.exports = async (req, res) => {
     const data = await s3.listObjectsV2(params).promise();
     const allKeys = data.Contents;
 
-    // Extract unique album names
+    // Collect album names
     const albumNamesSet = new Set();
     allKeys.forEach((item) => {
       const keyParts = item.Key.split('/');
       if (keyParts.length >= 4) {
-        // users/{username}/{albumname}/hi-res/{filename}
         const albumName = keyParts[2];
         albumNamesSet.add(albumName);
       }
@@ -40,39 +38,33 @@ module.exports = async (req, res) => {
 
     const albumNames = Array.from(albumNamesSet);
 
-    // For each album, find the most recent image in hi-res and get low-res URL
+    // Retrieve low-res image for each album
     const albums = await Promise.all(
       albumNames.map(async (albumName) => {
-        const hiResParams = {
+        const lowResParams = {
           Bucket: bucketName,
-          Prefix: `users/${username}/${albumName}/hi-res/`,
+          Prefix: `users/${username}/${albumName}/low-res/`,
         };
 
-        const hiResData = await s3.listObjectsV2(hiResParams).promise();
-        const hiResKeys = hiResData.Contents;
+        const lowResData = await s3.listObjectsV2(lowResParams).promise();
+        const lowResKeys = lowResData.Contents;
 
-        if (hiResKeys.length === 0) {
-          return null; // Skip albums with no hi-res images
+        if (lowResKeys.length === 0) {
+          return null;
         }
 
-        // Sort hi-res images by LastModified descending
-        hiResKeys.sort((a, b) => b.LastModified - a.LastModified);
-        const latestHiRes = hiResKeys[0];
-
-        // Derive low-res image key
-        const lowResKey = latestHiRes.Key.replace('/hi-res/', '/low-res/');
-        const lowResUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${lowResKey}`;
+        lowResKeys.sort((a, b) => b.LastModified - a.LastModified);
+        const latestLowRes = lowResKeys[0];
+        const latestImageUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${latestLowRes.Key}`;
 
         return {
           albumName,
-          latestImageUrl: lowResUrl, // Use low-res for cover
+          latestImageUrl,
         };
       })
     );
 
-    // Filter out any null albums
     const filteredAlbums = albums.filter((album) => album !== null);
-
     res.status(200).json(filteredAlbums);
   } catch (error) {
     console.error('Error fetching albums:', error);

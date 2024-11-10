@@ -18,7 +18,7 @@ function App() {
             path="/"
             element={
               <div>
-                <h1>album 2</h1>
+                <h1>Album</h1>
                 <Search />
                 <ImageUpload />
               </div>
