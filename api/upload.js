@@ -66,7 +66,7 @@ module.exports = (req, res) => {
             const lowResKey = `users/${username}/${albumname}/low-res/${fileName}`;
 
             // Upload high-res image
-            await s3
+            const highResUploadResult = await s3
               .upload({
                 Bucket: bucketName,
                 Key: highResKey,
@@ -75,8 +75,10 @@ module.exports = (req, res) => {
               })
               .promise();
 
+            console.log('High-res upload result:', highResUploadResult);
+
             // Upload low-res image
-            await s3
+            const lowResUploadResult = await s3
               .upload({
                 Bucket: bucketName,
                 Key: lowResKey,
@@ -85,7 +87,11 @@ module.exports = (req, res) => {
               })
               .promise();
 
-            console.log(`Successfully processed and uploaded ${fileName} for user ${username} in album ${albumname}`);
+            console.log('Low-res upload result:', lowResUploadResult);
+
+            console.log(
+              `Successfully processed and uploaded ${fileName} for user ${username} in album ${albumname}`
+            );
           } catch (error) {
             errorsOccurred = true;
             console.error(`Error processing or uploading ${file.originalFilename}:`, error);
