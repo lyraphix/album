@@ -18,44 +18,50 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const params = {
-    Bucket: bucketName,
-    Prefix: `users/${username}/${albumname}/`,
-  };
-  
+  let allKeys = [];
+  let continuationToken = null;
 
   try {
-    const data = await s3.listObjectsV2(params).promise();
-    console.log('S3 Data:', data);
-
-    const images = data.Contents.filter((item) => !item.Key.endsWith('/'))
-    .map((item) => {
-      const keyParts = item.Key.split('/');
-      const imageName = keyParts[keyParts.length - 1]; // Get the filename
-      const resolutionFolder = keyParts[keyParts.length - 2]; // 'hi-res' or 'low-res'
-      const resolution = resolutionFolder.replace('-', ''); // Convert 'hi-res' to 'hires', 'low-res' to 'lowres'
-  
-      return {
-        key: imageName,
-        url: `https://${bucketName}.s3.amazonaws.com/${item.Key}`,
-        resolution: resolution,
+    do {
+      const params = {
+        Bucket: bucketName,
+        Prefix: `users/${username}/${albumname}/`,
+        ContinuationToken: continuationToken,
       };
-    });
-  
 
-    // Group images by filename
-    const imageMap = {};
-    images.forEach((img) => {
-      const imageName = img.key;
-      if (!imageMap[imageName]) {
-        imageMap[imageName] = {};
-      }
-      imageMap[imageName][img.resolution] = img.url;
-    });
+      const data = await s3.listObjectsV2(params).promise();
 
-    const imageArray = Object.values(imageMap);
+      console.log('S3 Data:', data);
 
-    res.status(200).json(imageArray);
+      allKeys = allKeys.concat(data.Contents);
+
+      continuationToken = data.IsTruncated ? data.NextContinuationToken : null;
+    } while (continuationToken);
+
+    // Filter out directories and map image data
+    const images = allKeys
+      .filter((item) => !item.Key.endsWith('/'))
+      .map((item) => {
+        const keyParts = item.Key.split('/');
+        const fileName = keyParts[keyParts.length - 1]; // Get the filename
+        const resolutionFolder = keyParts[keyParts.length - 2]; // 'hi-res' or 'low-res'
+        const resolution = resolutionFolder.replace('-', ''); // Convert 'hi-res' to 'hires', 'low-res' to 'lowres'
+
+        // Use the full key as a unique identifier to handle duplicate filenames
+        const uniqueId = item.Key;
+
+        return {
+          id: uniqueId,
+          fileName: fileName,
+          url: `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${item.Key}`,
+          resolution: resolution,
+        };
+      });
+
+    // Optional: Group images by unique ID if needed
+    // For this example, we'll return the array directly
+
+    res.status(200).json(images);
   } catch (error) {
     console.error('Error listing images:', error);
     res.status(500).send('Error listing images');
