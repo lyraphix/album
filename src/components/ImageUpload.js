@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProgressCircle from './ProgressCircle';
-import imageCompression from 'browser-image-compression'; // Install this package
+import imageCompression from 'browser-image-compression'; // Ensure this is installed
 import './ImageUpload.css';
 
 const ImageUpload = () => {
@@ -42,8 +42,8 @@ const ImageUpload = () => {
 
         // Client-side image compression and resizing
         const options = {
-          maxSizeMB: 1, // Maximum size in MB
-          maxWidthOrHeight: 1920, // Max dimension
+          maxSizeMB: 1, // Adjust based on desired quality and size
+          maxWidthOrHeight: 1920,
           useWebWorker: true,
         };
 
