@@ -75,7 +75,7 @@ module.exports = (req, res) => {
             // Create low-res image (200px height)
             const lowResImage = await sharp(processedImage)
               .resize({ height: 200 })
-              .jpeg({ quality: 70 }) // Optional: Lower quality for thumbnails
+              .jpeg({ quality: 70 }) // Lower quality for thumbnails
               .toBuffer();
 
             const fileName = `${imageId}.jpeg`;

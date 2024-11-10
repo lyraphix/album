@@ -1,81 +1,110 @@
 // src/components/ImageUpload.js
 
 import React, { useState } from 'react';
-import ProgressCircle from './ProgressCircle'; // Assuming you have a progress component
+import { useNavigate } from 'react-router-dom';
+import ProgressCircle from './ProgressCircle';
+import './ImageUpload.css'; // Ensure you have appropriate styles
 
-const ImageUpload = ({ username, albumname, onUploadSuccess }) => {
-  const [selectedFiles, setSelectedFiles] = useState([]);
+const ImageUpload = () => {
+  const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({});
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [totalImages, setTotalImages] = useState(0);
+  const [currentImageName, setCurrentImageName] = useState('');
+  const navigate = useNavigate();
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    // Validate file types
-    const validImages = files.filter(file => file.type.startsWith('image/'));
-    if (validImages.length !== files.length) {
-      alert('Some files were not images and have been excluded.');
-    }
-    setSelectedFiles(validImages);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleUpload = async () => {
-    if (selectedFiles.length === 0) {
-      alert('Please select image files to upload.');
+    const files = e.target.elements.image.files;
+    const username = e.target.elements.username.value.trim();
+    const albumname = e.target.elements.albumname.value.trim();
+
+    if (!username || !albumname) {
+      setMessage('Please enter both username and album name.');
       return;
     }
 
+    if (files.length === 0) {
+      setMessage('Please select at least one file');
+      return;
+    }
+
+    // Initialize progress state
+    setTotalImages(files.length);
     setUploading(true);
-    const formData = new FormData();
-    formData.append('username', username);
-    formData.append('albumname', albumname);
-    selectedFiles.forEach(file => {
-      formData.append('image', file);
-    });
+    setCurrentImageIndex(0);
 
     try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      for (let i = 0; i < files.length; i++) {
+        setCurrentImageName(files[i].name);
 
-      if (!response.ok) {
-        throw new Error(`Upload failed with status ${response.status}`);
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('albumname', albumname);
+        formData.append('image', files[i]);
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to upload ${files[i].name}`);
+        }
+
+        setCurrentImageIndex(i + 1);
       }
 
-      const result = await response.text();
-      console.log(result);
-      alert('Images uploaded successfully!');
-      setSelectedFiles([]);
-      onUploadSuccess(); // Callback to refresh image grid if needed
-    } catch (error) {
-      console.error('Error uploading images:', error);
-      alert('There was an error uploading your images. Please try again.');
-    } finally {
+      setMessage('Images uploaded and processed successfully');
+
+      // Navigate to the album page after a brief delay to show 100% progress
+      setTimeout(() => {
+        navigate(`/u/${username}/${albumname}`);
+      }, 500);
+    } catch (err) {
+      console.error('Error uploading the files:', err);
+      setMessage('Error uploading the files');
       setUploading(false);
     }
   };
 
   return (
     <div className="image-upload-container">
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleFileChange}
-        disabled={uploading}
-      />
-      <button onClick={handleUpload} disabled={uploading || selectedFiles.length === 0}>
-        {uploading ? 'Uploading...' : 'Upload Images'}
-      </button>
-      {uploading && <ProgressCircle />}
-      <div className="selected-files">
-        {selectedFiles.map((file, index) => (
-          <div key={index} className="selected-file">
-            <img src={URL.createObjectURL(file)} alt={file.name} />
-            <p>{file.name}</p>
-          </div>
-        ))}
-      </div>
+      {!uploading ? (
+        <>
+          <h2>Create an Album</h2>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              required
+            />
+            <input
+              type="text"
+              name="albumname"
+              placeholder="Album Name"
+              required
+            />
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              multiple
+              required
+            />
+            <button type="submit">Upload</button>
+          </form>
+          <p>{message}</p>
+        </>
+      ) : (
+        <div className="uploading-section">
+          <h2>Uploading Images</h2>
+          <p>Uploading: {currentImageName}</p>
+          <ProgressCircle current={currentImageIndex} total={totalImages} />
+        </div>
+      )}
     </div>
   );
 };

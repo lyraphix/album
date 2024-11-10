@@ -1,7 +1,7 @@
 // api/images.js
 
 const AWS = require('aws-sdk');
-const path = require('path');
+const path = require('path'); // This is acceptable in the backend
 
 module.exports = async (req, res) => {
   const s3 = new AWS.S3({
