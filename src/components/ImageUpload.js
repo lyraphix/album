@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProgressCircle from './ProgressCircle';
-import './ImageUpload.css'; // Ensure you have appropriate styles
+import imageCompression from 'browser-image-compression'; // Install this package
+import './ImageUpload.css';
 
 const ImageUpload = () => {
   const [message, setMessage] = useState('');
@@ -39,10 +40,19 @@ const ImageUpload = () => {
       for (let i = 0; i < files.length; i++) {
         setCurrentImageName(files[i].name);
 
+        // Client-side image compression and resizing
+        const options = {
+          maxSizeMB: 1, // Maximum size in MB
+          maxWidthOrHeight: 1920, // Max dimension
+          useWebWorker: true,
+        };
+
+        const compressedFile = await imageCompression(files[i], options);
+
         const formData = new FormData();
         formData.append('username', username);
         formData.append('albumname', albumname);
-        formData.append('image', files[i]);
+        formData.append('image', compressedFile);
 
         const res = await fetch('/api/upload', {
           method: 'POST',
