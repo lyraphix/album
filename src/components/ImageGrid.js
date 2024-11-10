@@ -30,10 +30,10 @@ const ImageGrid = () => {
             onClick={() => setSelectedImage(image.hires)}
           />
         ))}
-        {selectedImage && (
-          <ImageModal image={selectedImage} onClose={() => setSelectedImage(null)} />
-        )}
       </div>
+      {selectedImage && (
+        <ImageModal image={selectedImage} onClose={() => setSelectedImage(null)} />
+      )}
     </div>
   );
 };

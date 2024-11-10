@@ -45,23 +45,32 @@ module.exports = async (req, res) => {
         const keyParts = item.Key.split('/');
         const fileName = keyParts[keyParts.length - 1]; // Get the filename
         const resolutionFolder = keyParts[keyParts.length - 2]; // 'hi-res' or 'low-res'
-        const resolution = resolutionFolder.replace('-', ''); // Convert 'hi-res' to 'hires', 'low-res' to 'lowres'
+        const resolution = resolutionFolder.replace('-', ''); // 'hires' or 'lowres'
 
-        // Use the full key as a unique identifier to handle duplicate filenames
-        const uniqueId = item.Key;
+        // Generate a unique imageId based on the path without the resolution folder
+        const imageId = keyParts.slice(0, -2).join('/') + '/' + fileName;
 
         return {
-          id: uniqueId,
+          imageId: imageId,
           fileName: fileName,
           url: `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${item.Key}`,
           resolution: resolution,
         };
       });
 
-    // Optional: Group images by unique ID if needed
-    // For this example, we'll return the array directly
+    // Group images by imageId
+    const imageMap = {};
+    images.forEach((img) => {
+      const imageId = img.imageId;
+      if (!imageMap[imageId]) {
+        imageMap[imageId] = {};
+      }
+      imageMap[imageId][img.resolution] = img.url;
+    });
 
-    res.status(200).json(images);
+    const imageArray = Object.values(imageMap);
+
+    res.status(200).json(imageArray);
   } catch (error) {
     console.error('Error listing images:', error);
     res.status(500).send('Error listing images');
