@@ -47,8 +47,8 @@ module.exports = async (req, res) => {
         const resolutionFolder = keyParts[keyParts.length - 2]; // 'hi-res' or 'low-res'
         const resolution = resolutionFolder.replace('-', ''); // 'hires' or 'lowres'
 
-        // Generate a unique imageId based on the path without the resolution folder
-        const imageId = keyParts.slice(0, -2).join('/') + '/' + fileName;
+        // Use the standardized identifier (without extension) as imageId
+        const imageId = path.parse(fileName).name;
 
         return {
           imageId: imageId,
