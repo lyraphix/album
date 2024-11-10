@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProgressCircle from './ProgressCircle';
 import imageCompression from 'browser-image-compression'; // Ensure this is installed
-import './ImageUpload.css';
+import './ImageUpload.css'; // Import the CSS file
 
 const ImageUpload = () => {
   const [message, setMessage] = useState('');
