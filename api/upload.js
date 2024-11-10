@@ -42,43 +42,61 @@ module.exports = (req, res) => {
         });
 
         const bucketName = process.env.AWS_BUCKET_NAME;
+        let errorsOccurred = false; // Flag to track errors
 
         for (const file of uploadedFiles) {
           try {
+            // Log file path and name for debugging
+            console.log(`Processing file: ${file.originalFilename}, path: ${file.filepath}`);
+
             const fileData = fs.readFileSync(file.filepath);
+
+            // Verify that fileData is not empty
+            if (!fileData || fileData.length === 0) {
+              throw new Error(`File data is empty for ${file.originalFilename}`);
+            }
+
             const lowResImage = await sharp(fileData)
               .resize({ width: 200 })
               .toBuffer();
-        
+
             const fileName = file.originalFilename;
-        
+
             const highResKey = `users/${username}/${albumname}/hi-res/${fileName}`;
             const lowResKey = `users/${username}/${albumname}/low-res/${fileName}`;
-        
+
             // Upload high-res image
-            await s3.upload({
-              Bucket: bucketName,
-              Key: highResKey,
-              Body: fileData,
-              ACL: 'public-read',
-            }).promise();
-        
+            await s3
+              .upload({
+                Bucket: bucketName,
+                Key: highResKey,
+                Body: fileData,
+                ACL: 'public-read',
+              })
+              .promise();
+
             // Upload low-res image
-            await s3.upload({
-              Bucket: bucketName,
-              Key: lowResKey,
-              Body: lowResImage,
-              ACL: 'public-read',
-            }).promise();
-        
+            await s3
+              .upload({
+                Bucket: bucketName,
+                Key: lowResKey,
+                Body: lowResImage,
+                ACL: 'public-read',
+              })
+              .promise();
+
             console.log(`Successfully processed and uploaded ${fileName} for user ${username} in album ${albumname}`);
           } catch (error) {
+            errorsOccurred = true;
             console.error(`Error processing or uploading ${file.originalFilename}:`, error);
-            // Optionally, collect errors to inform the user later
           }
-        }        
+        }
 
-        res.status(200).send('Images uploaded and processed successfully');
+        if (errorsOccurred) {
+          res.status(500).send('Some images failed to upload. Check server logs for details.');
+        } else {
+          res.status(200).send('Images uploaded and processed successfully');
+        }
       } catch (error) {
         console.error('Error processing the images:', error);
         res.status(500).send('Error processing the images');
