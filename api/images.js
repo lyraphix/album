@@ -1,6 +1,7 @@
 // api/images.js
 
 const AWS = require('aws-sdk');
+const path = require('path');
 
 module.exports = async (req, res) => {
   const s3 = new AWS.S3({
@@ -58,17 +59,24 @@ module.exports = async (req, res) => {
         };
       });
 
-    // Group images by imageId
+    // Group images by imageId and assign lowres and hires
     const imageMap = {};
     images.forEach((img) => {
       const imageId = img.imageId;
       if (!imageMap[imageId]) {
-        imageMap[imageId] = {};
+        imageMap[imageId] = { imageId: imageId, fileName: img.fileName };
       }
-      imageMap[imageId][img.resolution] = img.url;
+      if (img.resolution === 'hires') {
+        imageMap[imageId].hires = img.url;
+      } else if (img.resolution === 'lowres') {
+        imageMap[imageId].lowres = img.url;
+      }
     });
 
-    const imageArray = Object.values(imageMap);
+    // Convert the map to an array and ensure both lowres and hires exist
+    const imageArray = Object.values(imageMap).filter(
+      (img) => img.lowres && img.hires
+    );
 
     res.status(200).json(imageArray);
   } catch (error) {

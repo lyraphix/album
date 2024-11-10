@@ -11,28 +11,44 @@ const ImageGrid = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/images?username=${username}&albumname=${albumname}`)
-      .then((res) => res.json())
-      .then((data) => setImages(data))
-      .catch((error) => console.error('Error fetching images:', error));
+    const fetchImages = async () => {
+      try {
+        const response = await fetch(
+          `/api/images?username=${username}&albumname=${albumname}`
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Fetched images:', data); // For debugging
+        setImages(data);
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      }
+    };
+
+    fetchImages();
   }, [username, albumname]);
 
   return (
     <div>
       <h2>{`${username}'s album: ${albumname}`}</h2>
       <div className="grid">
-        {images.map((image, index) => (
+        {images.map((image) => (
           <img
-            key={index}
+            key={image.imageId} // Use unique imageId as key
             src={image.lowres}
-            alt="Gallery"
+            alt={image.fileName}
             loading="lazy"
             onClick={() => setSelectedImage(image.hires)}
           />
         ))}
       </div>
       {selectedImage && (
-        <ImageModal image={selectedImage} onClose={() => setSelectedImage(null)} />
+        <ImageModal
+          image={selectedImage}
+          onClose={() => setSelectedImage(null)}
+        />
       )}
     </div>
   );

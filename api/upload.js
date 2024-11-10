@@ -1,7 +1,10 @@
+// api/upload.js
+
 const formidable = require('formidable');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid'); // For generating unique identifiers
 
 module.exports = (req, res) => {
   if (req.method === 'POST') {
@@ -14,8 +17,8 @@ module.exports = (req, res) => {
         return;
       }
 
-      const username = fields.username.trim();
-      const albumname = fields.albumname.trim();
+      const username = fields.username?.trim();
+      const albumname = fields.albumname?.trim();
 
       if (!username || !albumname) {
         res.status(400).send('Username and album name are required.');
@@ -46,21 +49,36 @@ module.exports = (req, res) => {
 
         for (const file of uploadedFiles) {
           try {
-            // Log file path and name for debugging
-            console.log(`Processing file: ${file.originalFilename}, path: ${file.filepath}`);
-
-            const fileData = fs.readFileSync(file.filepath);
-
-            // Verify that fileData is not empty
-            if (!fileData || fileData.length === 0) {
-              throw new Error(`File data is empty for ${file.originalFilename}`);
+            // Validate file type
+            const mimeType = file.mimetype || file.type;
+            if (!mimeType.startsWith('image/')) {
+              throw new Error(`Invalid file type for ${file.originalFilename}`);
             }
 
-            const lowResImage = await sharp(fileData)
-              .resize({ width: 200 })
+            // Generate a standardized identifier
+            const imageId = uuidv4();
+
+            // Read file data
+            const fileData = fs.readFileSync(file.filepath);
+
+            // Convert to JPEG and resize to max 1920x1920
+            const processedImage = await sharp(fileData)
+              .resize({
+                width: 1920,
+                height: 1920,
+                fit: 'inside',
+                withoutEnlargement: true,
+              })
+              .jpeg({ quality: 90 })
               .toBuffer();
 
-            const fileName = file.originalFilename;
+            // Create low-res image (200px height)
+            const lowResImage = await sharp(processedImage)
+              .resize({ height: 200 })
+              .jpeg({ quality: 70 }) // Optional: Lower quality for thumbnails
+              .toBuffer();
+
+            const fileName = `${imageId}.jpeg`;
 
             const highResKey = `users/${username}/${albumname}/hi-res/${fileName}`;
             const lowResKey = `users/${username}/${albumname}/low-res/${fileName}`;
@@ -70,7 +88,7 @@ module.exports = (req, res) => {
               .upload({
                 Bucket: bucketName,
                 Key: highResKey,
-                Body: fileData,
+                Body: processedImage,
                 ACL: 'public-read',
               })
               .promise();
