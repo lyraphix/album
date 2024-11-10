@@ -72,7 +72,7 @@ const ImageUpload = () => {
     <div>
       {!uploading ? (
         <>
-          <h2>Upload Images</h2>
+          <h2>make an album</h2>
           <form onSubmit={handleSubmit}>
             <input type="text" name="username" placeholder="Username" required />
             <input type="text" name="albumname" placeholder="Album Name" required />

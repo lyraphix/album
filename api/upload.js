@@ -44,39 +44,39 @@ module.exports = (req, res) => {
         const bucketName = process.env.AWS_BUCKET_NAME;
 
         for (const file of uploadedFiles) {
-          const fileData = fs.readFileSync(file.filepath);
-          const lowResImage = await sharp(fileData)
-            .resize({ width: 200 })
-            .toBuffer();
-
-          const fileName = file.originalFilename;
-
-          // Define S3 paths
-          const highResKey = `users/${username}/${albumname}/hi-res/${fileName}`;
-          const lowResKey = `users/${username}/${albumname}/low-res/${fileName}`;
-
-          // Upload high-res image
-          await s3
-            .upload({
+          try {
+            const fileData = fs.readFileSync(file.filepath);
+            const lowResImage = await sharp(fileData)
+              .resize({ width: 200 })
+              .toBuffer();
+        
+            const fileName = file.originalFilename;
+        
+            const highResKey = `users/${username}/${albumname}/hi-res/${fileName}`;
+            const lowResKey = `users/${username}/${albumname}/low-res/${fileName}`;
+        
+            // Upload high-res image
+            await s3.upload({
               Bucket: bucketName,
               Key: highResKey,
               Body: fileData,
               ACL: 'public-read',
-            })
-            .promise();
-
-          // Upload low-res image
-          await s3
-            .upload({
+            }).promise();
+        
+            // Upload low-res image
+            await s3.upload({
               Bucket: bucketName,
               Key: lowResKey,
               Body: lowResImage,
               ACL: 'public-read',
-            })
-            .promise();
-
-          console.log(`Processed and uploaded ${fileName} for user ${username} in album ${albumname}`);
-        }
+            }).promise();
+        
+            console.log(`Successfully processed and uploaded ${fileName} for user ${username} in album ${albumname}`);
+          } catch (error) {
+            console.error(`Error processing or uploading ${file.originalFilename}:`, error);
+            // Optionally, collect errors to inform the user later
+          }
+        }        
 
         res.status(200).send('Images uploaded and processed successfully');
       } catch (error) {
