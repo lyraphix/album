@@ -14,5 +14,6 @@
     align-items: center;
     justify-content: center;
     text-align: center; /* Centers text horizontally */
+    margin-top: 20px; /* Adds space between elements */
   }
   
