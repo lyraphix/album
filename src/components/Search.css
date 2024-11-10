@@ -1,16 +1,15 @@
 /* src/components/Search.css and src/components/ImageUpload.css */
 
-.image-upload-container {
+.container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    height: 100vh; /* Full viewport height for vertical centering */
   }
   
-  .image-upload-container h2 {
-    font-weight: normal; /* Remove bold */
-    margin-bottom: 20px; /* Add spacing below the header */
+  h2 {
+    font-weight: normal; /* Remove bold from headers */
+    margin-bottom: 20px;
   }
   

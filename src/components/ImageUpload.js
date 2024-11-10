@@ -80,7 +80,7 @@ const ImageUpload = () => {
   };
 
   return (
-    <div className="image-upload-container">
+    <div className="container">
       {!uploading ? (
         <>
           <h2>create an Album</h2>

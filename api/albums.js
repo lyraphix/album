@@ -21,41 +21,28 @@ module.exports = async (req, res) => {
     const params = {
       Bucket: bucketName,
       Prefix: `users/${username}/`,
+      Delimiter: '/',
     };
 
     const data = await s3.listObjectsV2(params).promise();
-    const allKeys = data.Contents;
+    const albumPrefixes = data.CommonPrefixes || [];
 
-    // Collect album names
-    const albumNamesSet = new Set();
-    allKeys.forEach((item) => {
-      const keyParts = item.Key.split('/');
-      if (keyParts.length >= 4) {
-        const albumName = keyParts[2];
-        albumNamesSet.add(albumName);
-      }
-    });
-
-    const albumNames = Array.from(albumNamesSet);
-
-    // Retrieve low-res image for each album
     const albums = await Promise.all(
-      albumNames.map(async (albumName) => {
-        const lowResParams = {
+      albumPrefixes.map(async (prefixObj) => {
+        const albumName = prefixObj.Prefix.split('/')[2]; // Extract album name from the prefix
+        const hiResParams = {
           Bucket: bucketName,
-          Prefix: `users/${username}/${albumName}/low-res/`,
+          Prefix: `users/${username}/${albumName}/hi-res/`,
         };
 
-        const lowResData = await s3.listObjectsV2(lowResParams).promise();
-        const lowResKeys = lowResData.Contents;
+        const hiResData = await s3.listObjectsV2(hiResParams).promise();
+        const latestImageKey = hiResData.Contents.sort(
+          (a, b) => new Date(b.LastModified) - new Date(a.LastModified)
+        )[0]?.Key;
 
-        if (lowResKeys.length === 0) {
-          return null;
-        }
-
-        lowResKeys.sort((a, b) => b.LastModified - a.LastModified);
-        const latestLowRes = lowResKeys[0];
-        const latestImageUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${latestLowRes.Key}`;
+        const latestImageUrl = latestImageKey
+          ? `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${latestImageKey}`
+          : null;
 
         return {
           albumName,
@@ -64,8 +51,7 @@ module.exports = async (req, res) => {
       })
     );
 
-    const filteredAlbums = albums.filter((album) => album !== null);
-    res.status(200).json(filteredAlbums);
+    res.status(200).json(albums.filter((album) => album.albumName));
   } catch (error) {
     console.error('Error fetching albums:', error);
     res.status(500).json({ error: 'Error fetching albums.' });
