@@ -32,7 +32,7 @@ const ImageGrid = () => {
 
   return (
     <div className="image-grid-container">
-      <h2>{`${username}: ${albumname}`}</h2>
+      <h2 className="albums-header">{`${username}: ${albumname}`}</h2>
       <div className="grid">
         {images.map((image) => (
           <img

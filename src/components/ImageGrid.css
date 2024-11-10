@@ -1,5 +1,12 @@
 /* src/components/ImageGrid.css */
 
+.albums-header,
+.image-grid-header {
+text-align: left;
+margin-left: 20px;
+font-weight: normal; /* Remove bold */
+}
+
 .image-grid-container {
   padding: 20px;
   text-align: center;

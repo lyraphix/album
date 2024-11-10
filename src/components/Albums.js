@@ -39,7 +39,7 @@ const Albums = () => {
 
   return (
     <div className="albums-container">
-      <h2>Albums: {username}</h2>
+      <h2 className="albums-header">Albums: {username}</h2>
       <div className="albums-grid">
         {albums.map((album) => (
           <Link

@@ -1,4 +1,4 @@
-/* src/components/Search.css */
+/* src/components/Search.css and src/components/ImageUpload.css */
 
 .image-upload-container {
     display: flex;
@@ -6,13 +6,11 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
+    height: 100vh; /* Full viewport height for vertical centering */
   }
   
-  .uploading-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center; /* Centers text horizontally */
+  .image-upload-container h2 {
+    font-weight: normal; /* Remove bold */
+    margin-bottom: 20px; /* Add spacing below the header */
   }
   

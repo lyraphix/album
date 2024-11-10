@@ -13,3 +13,9 @@ h1 {
   font-size: 2rem;
   color: #000;
 }
+
+.main-header {
+  text-align: left;
+  margin-left: 20px; /* Optional: Adds a bit of padding from the left edge */
+  font-weight: normal; /* Remove bold */
+}
